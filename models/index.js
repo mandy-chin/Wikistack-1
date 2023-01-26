@@ -39,7 +39,7 @@ const User = db.define("user", {
   },
 });
 
-// Page.belongsTo(User);
+Page.belongsTo(User, {as: 'author'});
 
 module.exports = {
   db,

@@ -7,10 +7,8 @@ const mainPage = require("../views/main");
 
 router.get("/", async (req, res, next) => {
   try {
-    console.log(await Page.findByPk(1))
     const page = await Page.findAll();
     res.send(mainPage(page));
-    res.send("HELLO WORLD")
   } catch (error) {
     next(error);
   }
@@ -24,6 +22,14 @@ router.post("/", async (req, res, next) => {
       title: req.body.title,
       content: req.body.content,
     });
+
+    const [user, wasCreated] = await User.findOrCreate({
+        where: {
+            name: req.body.author,
+            email: req.body.email
+        }
+    });
+    await page.setAuthor(user);
     res.redirect(`/wiki/${page.slug}`);
   } catch (error) {
     next(error);
@@ -41,7 +47,9 @@ router.get("/:slug", async (req, res, next) => {
         slug: req.params.slug,
       },
     });
-    res.send(wikipage(page));
+    const author = await page.getAuthor();
+    console.log(page)
+    res.send(wikipage(page, author));
   } catch (error) {
     next(error);
   }
